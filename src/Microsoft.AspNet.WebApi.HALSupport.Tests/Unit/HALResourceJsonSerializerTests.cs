@@ -1,7 +1,7 @@
 ﻿namespace Microsoft.AspNet.WebApi.HALSupport.Tests.Unit
 {
     using System;
-    using System.Collections.Generic;
+    using System.Linq;
 
     using Microsoft.AspNet.WebApi.HALSupport.Models;
     using Microsoft.AspNet.WebApi.HALSupport.Serializers;
@@ -26,21 +26,17 @@
         public void Serialize_WhenGivenValidClass_ShouldReturnSerializedHalResource()
         {
             const string ExpectedResult = "{\"Name\":\"Test\",\"_links\":{\"self\":{\"href\":\"/\"}},\"_embedded\":{\"Owner\":{\"Id\":\"oveand\",\"Name\":\"Ove Andersen\"}}}";
-            var source = new HalResource<TestPage>(new TestPage() { Name = "Test" })
+            var source = new Resource<TestPage>(new TestPage() { Name = "Test" })
                              {
                                  Links =
-                                     new List<HalLink>
+                                     new KeyedCollection<Link>
                                          {
-                                             new HalLink
-                                                 {
-                                                     Relation = "self",
-                                                     Target = new Uri("/", UriKind.RelativeOrAbsolute)
-                                                 }
+                                             new Link("self", new Uri("/", UriKind.RelativeOrAbsolute))
                                          },
                                  EmbeddedResources =
-                                     new HalEmbeddedResourceDictionary 
+                                     new KeyedCollection<EmbeddedResource> 
                                      {
-                                             new HalEmbeddedResource(
+                                             new EmbeddedResource(
                                                  "Owner", 
                                                  new User()
                                                      {
@@ -53,6 +49,19 @@
             var result = JsonConvert.SerializeObject(source, this.settings);
 
             Assert.AreEqual(ExpectedResult, result);
+        }
+        
+        [Test]
+        public void Deserialize_WhenGivenValidClass_ShouldReturnSerializedHalResource()
+        {
+            const string json = "{\"Name\":\"Test\",\"_links\":{\"self\":{\"href\":\"/\"}},\"_embedded\":{\"Owner\":{\"Id\":\"oveand\",\"Name\":\"Ove Andersen\"}}}";
+
+            var obj = JsonConvert.DeserializeObject<Resource<TestPage>>(json);
+
+            Assert.AreEqual("Test", obj.State.Name);
+            Assert.AreEqual("/", obj.Links["self"].Target.ToString());
+            Assert.AreEqual("oveand", obj.EmbeddedResources["Owner"].ToResource<User>().State.Id);
+            Assert.AreEqual("Ove Andersen", obj.EmbeddedResources["Owner"].ToResource<User>().State.Name);
         }
     }
 }

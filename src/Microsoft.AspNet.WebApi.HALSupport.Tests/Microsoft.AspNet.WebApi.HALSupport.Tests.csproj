@@ -51,9 +51,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Integration\HalMapperTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Unit\HalJsonMediaTypeFormatterTests.cs" />
     <Compile Include="Unit\HalResourceFactoryTests.cs" />
-    <Compile Include="Unit\HALResourceJsonSerializerTests.cs" />
+    <Compile Include="Unit\HalResourceJsonSerializerTests.cs" />
     <Compile Include="Models\TestPage.cs" />
     <Compile Include="Models\User.cs" />
   </ItemGroup>

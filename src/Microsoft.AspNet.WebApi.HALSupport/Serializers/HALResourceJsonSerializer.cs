@@ -1,7 +1,6 @@
 ﻿namespace Microsoft.AspNet.WebApi.HALSupport.Serializers
 {
     using System;
-    using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
 
@@ -27,8 +26,8 @@
             try
             {
                 var resource = value.GetType().GetProperty("State", BindingFlags.Public | BindingFlags.Instance).GetValue(value);
-                var links = value.GetType().GetProperty("Links", BindingFlags.Public | BindingFlags.Instance).GetValue(value) as IEnumerable<HalLink>;
-                var embedded = value.GetType().GetProperty("EmbeddedResources", BindingFlags.Public | BindingFlags.Instance).GetValue(value) as HalEmbeddedResourceDictionary;
+                var links = value.GetType().GetProperty("Links", BindingFlags.Public | BindingFlags.Instance).GetValue(value) as KeyedCollection<Link>;
+                var embedded = value.GetType().GetProperty("EmbeddedResources", BindingFlags.Public | BindingFlags.Instance).GetValue(value) as KeyedCollection<EmbeddedResource>;
 
                 // Serialize inner resource and remove outer object notation
                 var r = JsonConvert.SerializeObject(resource, new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore });
@@ -116,7 +115,7 @@
         {
             try
             {
-                return objectType.GetGenericTypeDefinition() == typeof(HalResource<>);
+                return objectType.GetGenericTypeDefinition() == typeof(Resource<>);
             }
             catch
             {
