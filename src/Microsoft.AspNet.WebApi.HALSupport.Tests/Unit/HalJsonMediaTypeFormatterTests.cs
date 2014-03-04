@@ -5,6 +5,7 @@
     using System.Text;
 
     using Microsoft.AspNet.WebApi.HALSupport.Formatters;
+    using Microsoft.AspNet.WebApi.HALSupport.Models;
     using Microsoft.AspNet.WebApi.HALSupport.Tests.Models;
 
     using NUnit.Framework;
@@ -64,7 +65,7 @@
 
             using (var ms = new MemoryStream(buffer))
             {
-                var r = (TestPage)this.formatter.ReadFromStream(typeof(TestPage), ms, Encoding.UTF8, null);
+                var r = (TestPage)this.formatter.ReadFromStream(typeof(Resource<TestPage>), ms, Encoding.UTF8, null);
 
                 Assert.AreEqual("Test", r.Name);
                 Assert.AreEqual("oveand", r.Owner.Id);
