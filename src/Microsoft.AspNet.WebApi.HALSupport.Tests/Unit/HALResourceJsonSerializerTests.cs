@@ -19,7 +19,7 @@
         [SetUp]
         public void SetUp()
         {
-            this.settings = new JsonSerializerSettings { Converters = new JsonConverter[] { new HalResourceJsonSerializer() } };
+            this.settings = new JsonSerializerSettings { Converters = new JsonConverter[] { new HalResourceJsonConverter() } };
         }
 
         [Test]
@@ -56,7 +56,7 @@
         {
             const string json = "{\"Name\":\"Test\",\"_links\":{\"self\":{\"href\":\"/\"}},\"_embedded\":{\"Owner\":{\"Id\":\"oveand\",\"Name\":\"Ove Andersen\"}}}";
 
-            var obj = JsonConvert.DeserializeObject<Resource<TestPage>>(json);
+            var obj = JsonConvert.DeserializeObject<Resource<TestPage>>(json, this.settings);
 
             Assert.AreEqual("Test", obj.State.Name);
             Assert.AreEqual("/", obj.Links["self"].Target.ToString());

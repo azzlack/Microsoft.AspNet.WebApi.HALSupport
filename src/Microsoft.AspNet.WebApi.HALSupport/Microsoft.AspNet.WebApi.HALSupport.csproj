@@ -75,7 +75,8 @@
     <Compile Include="Resolvers\ExceptionValueResolver.cs" />
     <Compile Include="Resolvers\HttpContextResolver.cs" />
     <Compile Include="Resolvers\StaticValueResolver.cs" />
-    <Compile Include="Serializers\HALResourceJsonSerializer.cs" />
+    <Compile Include="Serializers\KeyedCollectionConverter.cs" />
+    <Compile Include="Serializers\HalResourceJsonConverter.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

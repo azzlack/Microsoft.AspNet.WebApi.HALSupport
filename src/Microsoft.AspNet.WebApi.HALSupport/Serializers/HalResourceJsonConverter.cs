@@ -4,15 +4,30 @@
     using System.Linq;
     using System.Reflection;
 
+    using Microsoft.AspNet.WebApi.HALSupport.Factories;
     using Microsoft.AspNet.WebApi.HALSupport.Models;
 
     using Newtonsoft.Json;
+    using Newtonsoft.Json.Linq;
 
     /// <summary>
-    /// <c>JSON</c> serializer for <c>HAL</c> resources.
+    /// <c>JSON</c> converter for <c>HAL</c> resources.
     /// </summary>
-    public class HalResourceJsonSerializer : JsonConverter
+    public class HalResourceJsonConverter : JsonConverter
     {
+        /// <summary>
+        /// The resource factory
+        /// </summary>
+        private readonly ResourceFactory resourceFactory;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="HalResourceJsonConverter"/> class.
+        /// </summary>
+        public HalResourceJsonConverter()
+        {
+            this.resourceFactory = new ResourceFactory();
+        }
+
         /// <summary>
         /// Writes the JSON representation of the object.
         /// </summary>
@@ -25,7 +40,7 @@
 
             try
             {
-                var resource = value.GetType().GetProperty("State", BindingFlags.Public | BindingFlags.Instance).GetValue(value);
+                var resource = value.GetType().GetProperty("State", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly).GetValue(value);
                 var links = value.GetType().GetProperty("Links", BindingFlags.Public | BindingFlags.Instance).GetValue(value) as KeyedCollection<Link>;
                 var embedded = value.GetType().GetProperty("EmbeddedResources", BindingFlags.Public | BindingFlags.Instance).GetValue(value) as KeyedCollection<EmbeddedResource>;
 
@@ -103,7 +118,40 @@
         /// <returns>The object value.</returns>
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
-            return null;
+            var resource = this.resourceFactory.Create(objectType);
+
+            var obj = JObject.Load(reader);
+            var embeddedResources = obj["_embedded"];
+            var links = obj["_links"];
+
+            // Map links
+            if (links != null) 
+            {
+                resource.Links = new KeyedCollection<Link>();
+
+                foreach (JProperty l in links)
+                {
+                    resource.Links.Add(new Link(l.Name, new Uri(l.Value["href"].Value<string>(), UriKind.RelativeOrAbsolute)));
+                }
+            }
+
+            // Map embedded resources
+            if (embeddedResources != null)
+            {
+                resource.EmbeddedResources = new KeyedCollection<EmbeddedResource>();
+
+                foreach (var e in embeddedResources)
+                {
+                    var prop = (JProperty)e;
+
+                    resource.EmbeddedResources.Add(new EmbeddedResource(prop.Name, (object)e.First()));
+                }
+            }
+
+            // Map the state object
+            resource.State = serializer.Deserialize(obj.CreateReader(), resource.Type);
+
+            return resource;
         }
 
         /// <summary>

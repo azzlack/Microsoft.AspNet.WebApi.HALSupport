@@ -65,7 +65,7 @@
         {
             var resource = this.resourceFactory.Create(value);
 
-            var json = JsonConvert.SerializeObject(resource, Formatting.None, new HalResourceJsonSerializer());
+            var json = JsonConvert.SerializeObject(resource, Formatting.None, new HalResourceJsonConverter());
 
             var buffer = Encoding.Default.GetBytes(json);
 
@@ -86,7 +86,7 @@
         {
             using (var sr = new StreamReader(readStream)) 
             {
-                var resource = JsonConvert.DeserializeObject(sr.ReadToEnd(), type, new HalResourceJsonSerializer());
+                var resource = JsonConvert.DeserializeObject(sr.ReadToEnd(), type, new HalResourceJsonConverter());
 
                 return resource;
             }

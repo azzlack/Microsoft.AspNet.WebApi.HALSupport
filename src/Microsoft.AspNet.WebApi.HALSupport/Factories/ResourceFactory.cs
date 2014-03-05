@@ -13,6 +13,66 @@
     public class ResourceFactory
     {
         /// <summary>
+        /// Creates a <c>HAL</c> resource wrapping the specified type.
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <returns>A <c>HAL</c> resource.</returns>
+        public Resource Create(Type type)
+        {
+            if (typeof(Resource).IsAssignableFrom(type))
+            {
+                var r = Activator.CreateInstance(
+                    type, 
+                    BindingFlags.NonPublic | BindingFlags.Instance, 
+                    null, 
+                    null, 
+                    null);
+
+                return (Resource)r;
+            }
+
+            var h = Activator.CreateInstance(
+                typeof(Resource<>).MakeGenericType(type),
+                BindingFlags.NonPublic | BindingFlags.Instance,
+                null,
+                null,
+                null);
+
+            return (Resource)h;
+        }
+
+
+        /// <summary>
+        /// Creates a <c>HAL</c> resource wrapping the specified type and state.
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <param name="state">The state.</param>
+        /// <returns>A <c>HAL</c> resource.</returns>
+        public Resource<object> Create(Type type, object state)
+        {
+            if (typeof(Resource).IsAssignableFrom(type))
+            {
+                var r = Activator.CreateInstance(
+                    type,
+                    BindingFlags.NonPublic | BindingFlags.Instance,
+                    null,
+                    new[] { state },
+                    null);
+
+                return (Resource<object>)r;
+            }
+
+            var h = Activator.CreateInstance(
+                typeof(Resource<>).MakeGenericType(type),
+                BindingFlags.NonPublic | BindingFlags.Instance,
+                null,
+                new[] { state },
+                null);
+
+            return (Resource<object>)h;
+        } 
+
+        /// <summary>
         /// Creates a <c>HAL</c> resource using the specified state.
         /// </summary>
         /// <typeparam name="T">The source type.</typeparam>

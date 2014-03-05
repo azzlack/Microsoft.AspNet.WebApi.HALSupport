@@ -44,7 +44,6 @@
         }
 
         [TestCase("æøå")]
-        [TestCase(":")]
         public void Map_WhenGivenLinkMappingWithCustomResolverAndConstructorWithInvalidUri_ShouldNotReturnValue(string uri)
         {
             HalMapper.Instance.CreateMap<TestPage>() // Use custom resolver
